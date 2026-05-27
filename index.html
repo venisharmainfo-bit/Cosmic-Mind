@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Cosmic Mind</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04040d;
+  --text:#b8b8d8;
+  --muted:#38385a;
+  --mono:'Space Mono',monospace;
+  --head:'Orbitron',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;height:100%}
+body{
+  height:100%;overflow-y:scroll;overflow-x:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:var(--body);cursor:none;
+}
+/* ─ canvas ─ */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+/* ─ scan overlay ─ */
+.scanline{
+  position:fixed;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(120,80,220,.18),transparent);
+  animation:scanY 10s linear infinite;z-index:10;pointer-events:none;
+}
+@keyframes scanY{0%{top:-2px}100%{top:100vh}}
+/* ─ cursor ─ */
+#cdot{width:5px;height:5px;background:#fff;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cring{width:26px;height:26px;border:1px solid rgba(140,100,220,.7);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .15s,height .15s,border-color .15s}
+body.h #cring{width:44px;height:44px;border-color:rgba(140,100,220,1)}
+/* ─ top nav ─ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:22px 52px;display:flex;justify-content:space-between;align-items:center;
+}
+.logo{font-family:var(--head);font-size:10px;letter-spacing:.38em;color:#5a3a90;text-transform:uppercase}
+.nav-r{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted)}
+/* ─ side nav ─ */
+#sidenav{
+  position:fixed;right:24px;top:50%;transform:translateY(-50%);
+  z-index:200;display:flex;flex-direction:column;gap:12px;align-items:flex-end;
+}
+.snd{display:flex;align-items:center;gap:8px;cursor:none}
+.snd-lbl{
+  font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);opacity:0;transform:translateX(6px);
+  transition:opacity .2s,transform .2s;white-space:nowrap;
+}
+.snd:hover .snd-lbl,.snd.on .snd-lbl{opacity:1;transform:translateX(0)}
+.snd-d{width:4px;height:4px;border-radius:50%;background:#1c1c38;transition:background .3s,transform .3s}
+.snd.on .snd-d{background:#8b5cdf;transform:scale(1.7)}
+/* ─ base section ─ */
+.S{
+  height:100vh;width:100vw;scroll-snap-align:start;
+  display:flex;position:relative;overflow:hidden;z-index:1;
+}
+/* ─ content side ─ */
+.cs{
+  width:50%;padding:0 72px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:2;
+}
+/* ─ visual side ─ */
+.vs{
+  width:50%;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;overflow:hidden;
+}
+.S.flip .cs{order:2}
+.S.flip .vs{order:1}
+/* ─ section content elements ─ */
+.s-tag{font-family:var(--mono);font-size:9px;letter-spacing:.42em;text-transform:uppercase;margin-bottom:10px}
+.s-bar{height:1px;width:40px;margin-bottom:28px;opacity:.7}
+.s-title{
+  font-family:var(--head);font-size:clamp(26px,3.2vw,50px);
+  font-weight:900;line-height:1.04;margin-bottom:24px;
+}
+.s-body{
+  font-size:14px;line-height:1.88;color:#50507a;
+  font-weight:300;max-width:440px;margin-bottom:32px;
+}
+.s-stats{display:flex;gap:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,.05)}
+.stat-v{font-family:var(--mono);font-size:17px;margin-bottom:5px}
+.stat-l{font-family:var(--mono);font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+/* ─ section glows ─ */
+.glow-l{position:absolute;left:-120px;top:50%;transform:translateY(-50%);width:400px;height:400px;border-radius:50%;filter:blur(80px);opacity:.06;pointer-events:none}
+.glow-r{position:absolute;right:-120px;top:50%;transform:translateY(-50%);width:400px;height:400px;border-radius:50%;filter:blur(80px);opacity:.06;pointer-events:none}
+/* ─ reveal ─ */
+.rl{opacity:0;transform:translateX(-30px);transition:opacity .75s,transform .75s}
+.rr{opacity:0;transform:translateX( 30px);transition:opacity .75s,transform .75s}
+.rl.in,.rr.in{opacity:1;transform:translateX(0)}
+.s-tag   {transition-delay:.05s}
+.s-bar   {transition-delay:.1s}
+.s-title {transition-delay:.16s}
+.s-body  {transition-delay:.24s}
+.s-stats {transition-delay:.34s}
+
+/* ═══════════════════════════ HERO ═══ */
+#hero{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(100,60,180,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(100,60,180,.035) 1px,transparent 1px);
+  background-size:64px 64px;
+  animation:gridScroll 24s linear infinite;
+}
+@keyframes gridScroll{to{background-position:64px 64px}}
+.h-eye{
+  font-family:var(--mono);font-size:9px;letter-spacing:.5em;text-transform:uppercase;
+  color:rgba(140,100,220,.75);margin-bottom:22px;
+  opacity:0;animation:fu .9s .3s forwards;
+}
+.h-title{
+  font-family:var(--head);font-weight:900;
+  font-size:clamp(54px,11vw,136px);line-height:.88;letter-spacing:-.02em;
+  background:linear-gradient(155deg,#fff 0%,#bf94ff 42%,#54c8ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  opacity:0;animation:fu .9s .6s forwards;margin-bottom:32px;
+}
+.h-sub{
+  font-size:14px;font-weight:300;color:#3a3a60;
+  max-width:420px;line-height:1.85;
+  opacity:0;animation:fu .9s .9s forwards;margin-bottom:56px;
+}
+.h-cta{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:12px 26px;border:1px solid rgba(140,100,220,.35);border-radius:100px;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text);
+  text-decoration:none;background:rgba(140,100,220,.07);
+  opacity:0;animation:fu .9s 1.2s forwards;
+  transition:border-color .3s,background .3s;
+}
+.h-cta:hover{border-color:rgba(140,100,220,.8);background:rgba(140,100,220,.15)}
+.scroll-hint{
+  position:absolute;bottom:40px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;animation:fu .9s 1.6s forwards;
+}
+.scroll-hint span{font-family:var(--mono);font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:var(--muted)}
+.scroll-bar{width:1px;height:50px;background:linear-gradient(to bottom,#7040b0,transparent);animation:sb 2s ease-in-out infinite}
+@keyframes sb{0%,100%{transform:scaleY(1);opacity:1}50%{transform:scaleY(.5);opacity:.2}}
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ VISUAL ELEMENTS ═══ */
+
+/* 1 fabric */
+.v-fabric svg{overflow:visible;animation:floatY 6s ease-in-out infinite}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* 2 orbit */
+.v-orbit{width:300px;height:300px;position:relative;display:flex;align-items:center;justify-content:center}
+.or{position:absolute;border-radius:50%;border:1px solid rgba(155,107,239,.22)}
+.or:nth-child(1){width:72px; height:72px; border-color:rgba(155,107,239,.6); animation:spin 3s linear infinite}
+.or:nth-child(2){width:140px;height:140px;border-color:rgba(155,107,239,.4); animation:spin 7s linear infinite}
+.or:nth-child(3){width:215px;height:215px;border-color:rgba(155,107,239,.25);animation:spinR 13s linear infinite}
+.or:nth-child(4){width:295px;height:295px;border-color:rgba(155,107,239,.12);animation:spin 22s linear infinite}
+.or-dot{width:8px;height:8px;border-radius:50%;background:#9b6bef;position:absolute;top:0;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px #9b6bef}
+.or-core{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff,#9b6bef);box-shadow:0 0 20px #9b6bef,0 0 40px rgba(155,107,239,.3)}
+@keyframes spin {to{transform:rotate(360deg)}}
+@keyframes spinR{to{transform:rotate(-360deg)}}
+
+/* 3 infinity */
+.v-inf svg{overflow:visible}
+.inf-path{fill:none;stroke:rgba(208,104,240,.8);stroke-width:2.5;stroke-dasharray:620;stroke-dashoffset:620}
+.inf-path.go{animation:dashIn 2s ease forwards}
+@keyframes dashIn{to{stroke-dashoffset:0}}
+
+/* 4 black hole */
+.v-hole{width:300px;height:300px;position:relative;display:flex;align-items:center;justify-content:center}
+.bh{position:absolute;border-radius:50%}
+.bh:nth-child(1){width:70px; height:70px; border:1.5px solid rgba(255,80,80,.7); animation:spin 2.5s linear infinite}
+.bh:nth-child(2){width:115px;height:115px;border:1px solid rgba(255,80,80,.45);animation:spinR 4.5s linear infinite}
+.bh:nth-child(3){width:165px;height:165px;border:1px solid rgba(255,80,80,.28);animation:spin 7s linear infinite}
+.bh:nth-child(4){width:220px;height:220px;border:1px solid rgba(255,80,80,.15);animation:spinR 12s linear infinite}
+.bh:nth-child(5){width:295px;height:295px;border:1px solid rgba(255,80,80,.07);animation:spin 20s linear infinite}
+.bh-core{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,#0d0000,#000);box-shadow:0 0 0 2px rgba(255,80,80,.4),0 0 24px rgba(255,80,80,.25)}
+
+/* 5 future branches */
+.v-future svg{overflow:visible}
+.fl{fill:none;stroke-width:1.5;stroke-dasharray:350;stroke-dashoffset:350}
+.fl.go{animation:dashIn 1.2s ease forwards}
+.fn{opacity:0}
+.fn.go{animation:fu .4s forwards}
+
+/* 6 hidden dots */
+.v-hidden{width:320px;height:320px;position:relative}
+.hd{position:absolute;border-radius:50%;background:#5c7cff}
+
+/* 7 cosmic rings */
+.v-cosmic{width:300px;height:300px;position:relative;display:flex;align-items:center;justify-content:center}
+.cr{position:absolute;border-radius:50%;border:1px solid rgba(255,183,77,.6);animation:expandRing 4s ease-out infinite}
+.cr:nth-child(1){animation-delay:0s}
+.cr:nth-child(2){animation-delay:1s}
+.cr:nth-child(3){animation-delay:2s}
+.cr:nth-child(4){animation-delay:3s}
+.cr-core{width:10px;height:10px;border-radius:50%;background:#ffb74d;box-shadow:0 0 16px #ffb74d,0 0 32px rgba(255,183,77,.35)}
+@keyframes expandRing{from{width:10px;height:10px;opacity:.8}to{width:300px;height:300px;opacity:0}}
+
+/* 8 mind web */
+.v-mind svg{overflow:visible}
+.ml{stroke:rgba(176,148,255,.18);stroke-width:1;fill:none}
+.mn{fill:rgba(176,148,255,.45);animation:pulse 3s ease-in-out infinite}
+.mn:nth-child(odd){animation-delay:1s}
+@keyframes pulse{0%,100%{opacity:.5;r:3}50%{opacity:1;r:5}}
+
+/* ── FOOTER ─────────────────────── */
+#footer{
+  height:100vh;scroll-snap-align:start;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;position:relative;z-index:1;
+  border-top:1px solid rgba(255,255,255,.04);
+}
+.ft-label{font-family:var(--mono);font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.ft-title{font-family:var(--head);font-size:clamp(28px,5vw,64px);font-weight:900;line-height:.95;
+  background:linear-gradient(155deg,#fff 0%,#bf94ff 50%,#54c8ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:24px;
+}
+.ft-body{font-size:14px;color:var(--muted);max-width:400px;line-height:1.8;font-weight:300}
+@media(max-width:768px){
+  .S{flex-direction:column}
+  .cs,.vs{width:100%;height:50vh}
+  .cs{padding:60px 28px 20px}
+  .S.flip .cs{order:1}.S.flip .vs{order:2}
+  #sidenav{display:none}
+  nav{padding:18px 24px}
+}
+</style>
+</head>
+<body>
+
+<div id="cdot"></div>
+<div id="cring"></div>
+<div class="scanline"></div>
+<canvas id="stars"></canvas>
+
+<nav>
+  <div class="logo">Cosmic Mind</div>
+  <div class="nav-r" id="navlabel">01 / ORIGIN</div>
+</nav>
+
+<div id="sidenav"></div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="S" id="s0">
+  <div class="h-eye">Mission&nbsp;&nbsp;Deep&nbsp;&nbsp;Space&nbsp;&nbsp;Inquiry</div>
+  <h1 class="h-title">THE<br>COSMIC<br>MIND</h1>
+  <p class="h-sub">Eight expeditions into the deepest questions of existence — from the curvature of spacetime to the nature of consciousness itself.</p>
+  <a href="#s1" class="h-cta">Begin Mission &nbsp;↓</a>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- ══ 01 FABRIC OF REALITY ══ -->
+<section class="S" id="s1">
+  <div class="glow-l" style="background:#4fc3f7"></div>
+  <div class="cs rl">
+    <p class="s-tag col-cy" style="color:#4fc3f7">01 &nbsp;—&nbsp; Fabric of Reality</p>
+    <div class="s-bar" style="background:#4fc3f7"></div>
+    <h2 class="s-title">What Is Reality<br>Made Of?</h2>
+    <p class="s-body">
+      At the deepest level, the universe is not a collection of particles — it is a set of overlapping quantum fields permeating all of spacetime. What we call "matter" is excitation in those fields. Reality may be relational and emergent, a story the cosmos tells itself through mathematics. The "solid" objects you touch are 99.9999% empty space, held together by electromagnetic repulsion between fields.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#4fc3f7">10⁻³⁵ m</div><div class="stat-l">Planck Length</div></div>
+      <div><div class="stat-v" style="color:#4fc3f7">17</div><div class="stat-l">Standard Model Fields</div></div>
+      <div><div class="stat-v" style="color:#4fc3f7">∞</div><div class="stat-l">Layers of Abstraction</div></div>
+    </div>
+  </div>
+  <div class="vs rr">
+    <div class="v-fabric">
+      <svg width="320" height="280" viewBox="0 0 320 280">
+        <defs>
+          <radialGradient id="gc1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(79,195,247,0.5)"/>
+            <stop offset="100%" stop-color="rgba(79,195,247,0)"/>
+          </radialGradient>
+        </defs>
+        <!-- warped grid lines horizontal -->
+        <path d="M0,40 Q80,20 160,40 Q240,60 320,40" fill="none" stroke="rgba(79,195,247,0.2)" stroke-width="0.8"/>
+        <path d="M0,80 Q80,55 160,80 Q240,105 320,80" fill="none" stroke="rgba(79,195,247,0.2)" stroke-width="0.8"/>
+        <path d="M0,120 Q80,90 160,120 Q240,150 320,120" fill="none" stroke="rgba(79,195,247,0.25)" stroke-width="1"/>
+        <path d="M0,160 Q80,125 160,160 Q240,195 320,160" fill="none" stroke="rgba(79,195,247,0.2)" stroke-width="0.8"/>
+        <path d="M0,200 Q80,175 160,200 Q240,225 320,200" fill="none" stroke="rgba(79,195,247,0.15)" stroke-width="0.8"/>
+        <path d="M0,240 Q80,220 160,240 Q240,260 320,240" fill="none" stroke="rgba(79,195,247,0.1)" stroke-width="0.8"/>
+        <!-- vertical lines -->
+        <path d="M40,0  Q20,70 40,140 Q60,210 40,280"  fill="none" stroke="rgba(79,195,247,0.15)" stroke-width="0.8"/>
+        <path d="M80,0  Q55,70 80,140 Q105,210 80,280" fill="none" stroke="rgba(79,195,247,0.2)"  stroke-width="0.8"/>
+        <path d="M120,0 Q90,70 120,140 Q150,210 120,280" fill="none" stroke="rgba(79,195,247,0.25)" stroke-width="1"/>
+        <path d="M160,0 Q125,70 160,140 Q195,210 160,280" fill="none" stroke="rgba(79,195,247,0.25)" stroke-width="1"/>
+        <path d="M200,0 Q170,70 200,140 Q230,210 200,280" fill="none" stroke="rgba(79,195,247,0.2)"  stroke-width="0.8"/>
+        <path d="M240,0 Q215,70 240,140 Q265,210 240,280" fill="none" stroke="rgba(79,195,247,0.15)" stroke-width="0.8"/>
+        <path d="M280,0 Q260,70 280,140 Q300,210 280,280" fill="none" stroke="rgba(79,195,247,0.1)"  stroke-width="0.8"/>
+        <!-- intersection nodes -->
+        <circle cx="160" cy="120" r="4" fill="rgba(79,195,247,0.8)"><animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/></circle>
+        <circle cx="160" cy="140" r="2.5" fill="rgba(79,195,247,0.5)"/>
+        <circle cx="120" cy="120" r="2" fill="rgba(79,195,247,0.4)"/>
+        <circle cx="200" cy="120" r="2" fill="rgba(79,195,247,0.4)"/>
+        <circle cx="80"  cy="80"  r="1.5" fill="rgba(79,195,247,0.3)"/>
+        <circle cx="240" cy="80"  r="1.5" fill="rgba(79,195,247,0.3)"/>
+        <!-- glow center -->
+        <circle cx="160" cy="130" r="40" fill="url(#gc1)" opacity="0.3"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 SPACETIME ══ -->
+<section class="S flip" id="s2">
+  <div class="glow-r" style="background:#9b6bef"></div>
+  <div class="cs rr">
+    <p class="s-tag" style="color:#9b6bef">02 &nbsp;—&nbsp; Space Time Gravity</p>
+    <div class="s-bar" style="background:#9b6bef"></div>
+    <h2 class="s-title">Gravity Is Not<br>A Force</h2>
+    <p class="s-body">
+      Einstein's general relativity revealed that gravity is the curvature of spacetime caused by mass and energy. Massive objects don't pull — they warp the fabric itself, and other objects follow the curves. Time runs measurably slower near large masses. A GPS satellite must account for this difference or your navigation drifts by kilometres per day. In 2015, LIGO detected gravitational waves: ripples in spacetime from two merging black holes 1.3 billion light-years away.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#9b6bef">1915</div><div class="stat-l">GR Published</div></div>
+      <div><div class="stat-v" style="color:#9b6bef">299,792</div><div class="stat-l">km/s — c</div></div>
+      <div><div class="stat-v" style="color:#9b6bef">4D</div><div class="stat-l">Spacetime Dimensions</div></div>
+    </div>
+  </div>
+  <div class="vs rl">
+    <div class="v-orbit">
+      <div class="or"><div class="or-dot"></div></div>
+      <div class="or"><div class="or-dot"></div></div>
+      <div class="or"><div class="or-dot"></div></div>
+      <div class="or"><div class="or-dot"></div></div>
+      <div class="or-core"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 MIND BREAKING ══ -->
+<section class="S" id="s3">
+  <div class="glow-l" style="background:#d068f0"></div>
+  <div class="cs rl">
+    <p class="s-tag" style="color:#d068f0">03 &nbsp;—&nbsp; Mind Breaking Questions</p>
+    <div class="s-bar" style="background:#d068f0"></div>
+    <h2 class="s-title">Questions That<br>Dissolve Certainty</h2>
+    <p class="s-body">
+      Why is there something rather than nothing? Is mathematics discovered or invented? Could our reality be a simulation indistinguishable from base reality? Are we alone — and if so, where is everyone? (Fermi, 1950.) These are not rhetorical questions. They are live scientific and philosophical problems that have resisted every answer thrown at them across millennia of inquiry. Some may be undecidable in principle.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#d068f0">∞</div><div class="stat-l">Open Questions</div></div>
+      <div><div class="stat-v" style="color:#d068f0">1950</div><div class="stat-l">Fermi Paradox</div></div>
+      <div><div class="stat-v" style="color:#d068f0">0</div><div class="stat-l">Confirmed Answers</div></div>
+    </div>
+  </div>
+  <div class="vs rr">
+    <div class="v-inf">
+      <svg width="340" height="200" viewBox="0 0 340 200">
+        <path class="inf-path" id="infp"
+          d="M170,100 C170,60 130,30 100,50 C60,75 60,125 100,150 C130,170 170,140 170,100 C170,60 210,30 240,50 C280,75 280,125 240,150 C210,170 170,140 170,100"/>
+        <!-- question marks scattered -->
+        <text x="40"  y="35"  font-family="Orbitron" font-size="18" fill="rgba(208,104,240,0.2)" font-weight="700">?</text>
+        <text x="290" y="180" font-family="Orbitron" font-size="14" fill="rgba(208,104,240,0.15)">?</text>
+        <text x="300" y="40"  font-family="Orbitron" font-size="22" fill="rgba(208,104,240,0.12)">?</text>
+        <text x="10"  y="185" font-family="Orbitron" font-size="12" fill="rgba(208,104,240,0.12)">?</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 BLACK HOLES ══ -->
+<section class="S flip" id="s4">
+  <div class="glow-r" style="background:#ff5252"></div>
+  <div class="cs rr">
+    <p class="s-tag" style="color:#ff5252">04 &nbsp;—&nbsp; Black Holes &amp; Singularities</p>
+    <div class="s-bar" style="background:#ff5252"></div>
+    <h2 class="s-title">Where Physics<br>Breaks Down</h2>
+    <p class="s-body">
+      At a singularity, every known law of physics ceases to function. Black holes are regions where gravity is so extreme that nothing — not even light — can escape beyond the event horizon. Yet Hawking radiation predicts they slowly evaporate, raising the information paradox: if quantum information is destroyed, it violates the fundamental unitarity of quantum mechanics. This unresolved tension is one of the deepest open problems in all of physics.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#ff5252">M87*</div><div class="stat-l">First Image — 2019</div></div>
+      <div><div class="stat-v" style="color:#ff5252">6.5B</div><div class="stat-l">Solar Masses (M87*)</div></div>
+      <div><div class="stat-v" style="color:#ff5252">~0 K</div><div class="stat-l">Hawking Temperature</div></div>
+    </div>
+  </div>
+  <div class="vs rl">
+    <div class="v-hole">
+      <div class="bh"></div>
+      <div class="bh"></div>
+      <div class="bh"></div>
+      <div class="bh"></div>
+      <div class="bh"></div>
+      <div class="bh-core"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 05 IMPOSSIBLE FUTURES ══ -->
+<section class="S" id="s5">
+  <div class="glow-l" style="background:#26d0ce"></div>
+  <div class="cs rl">
+    <p class="s-tag" style="color:#26d0ce">05 &nbsp;—&nbsp; Impossible Futures</p>
+    <div class="s-bar" style="background:#26d0ce"></div>
+    <h2 class="s-title">The Unimaginable<br>Shape of What's Next</h2>
+    <p class="s-body">
+      General relativity permits closed timelike curves — mathematical solutions that allow paths looping backward through time. The many-worlds interpretation branches reality at every quantum event. Eternal inflation spawns bubble universes with different physical constants. The far future may hold Dyson spheres harvesting entire stars, minds uploaded onto substrates of pure computation, civilisations spanning galaxy clusters — or silence, for reasons we cannot yet conceive.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#26d0ce">10¹⁰⁰</div><div class="stat-l">Years to Heat Death</div></div>
+      <div><div class="stat-v" style="color:#26d0ce">∞?</div><div class="stat-l">Parallel Universes</div></div>
+      <div><div class="stat-v" style="color:#26d0ce">Type III</div><div class="stat-l">Kardashev Scale (goal)</div></div>
+    </div>
+  </div>
+  <div class="vs rr">
+    <div class="v-future">
+      <svg width="340" height="280" viewBox="0 0 340 280">
+        <!-- main trunk -->
+        <line class="fl" id="fl1" x1="170" y1="260" x2="170" y2="140" stroke="#26d0ce"/>
+        <!-- branches -->
+        <line class="fl" id="fl2" x1="170" y1="140" x2="80"  y2="80"  stroke="rgba(38,208,206,0.6)" style="transition-delay:.2s"/>
+        <line class="fl" id="fl3" x1="170" y1="140" x2="260" y2="80"  stroke="rgba(38,208,206,0.6)" style="transition-delay:.2s"/>
+        <!-- sub branches -->
+        <line class="fl" id="fl4" x1="80"  y1="80"  x2="40"  y2="30"  stroke="rgba(38,208,206,0.35)" style="transition-delay:.5s"/>
+        <line class="fl" id="fl5" x1="80"  y1="80"  x2="120" y2="30"  stroke="rgba(38,208,206,0.35)" style="transition-delay:.5s"/>
+        <line class="fl" id="fl6" x1="260" y1="80"  x2="220" y2="30"  stroke="rgba(38,208,206,0.35)" style="transition-delay:.5s"/>
+        <line class="fl" id="fl7" x1="260" y1="80"  x2="300" y2="30"  stroke="rgba(38,208,206,0.35)" style="transition-delay:.5s"/>
+        <!-- nodes -->
+        <circle class="fn" id="fn1" cx="170" cy="260" r="4" fill="#26d0ce"/>
+        <circle class="fn" id="fn2" cx="170" cy="140" r="5" fill="#26d0ce" style="transition-delay:.4s"/>
+        <circle class="fn" id="fn3" cx="80"  cy="80"  r="3.5" fill="#26d0ce" style="transition-delay:.7s"/>
+        <circle class="fn" id="fn4" cx="260" cy="80"  r="3.5" fill="#26d0ce" style="transition-delay:.7s"/>
+        <circle class="fn" id="fn5" cx="40"  cy="30"  r="2.5" fill="#26d0ce" style="transition-delay:1s"/>
+        <circle class="fn" id="fn6" cx="120" cy="30"  r="2.5" fill="#26d0ce" style="transition-delay:1s"/>
+        <circle class="fn" id="fn7" cx="220" cy="30"  r="2.5" fill="#26d0ce" style="transition-delay:1s"/>
+        <circle class="fn" id="fn8" cx="300" cy="30"  r="2.5" fill="#26d0ce" style="transition-delay:1s"/>
+        <!-- labels -->
+        <text x="148" y="275" font-family="Space Mono" font-size="7" fill="rgba(38,208,206,0.5)" letter-spacing="1">NOW</text>
+        <text x="22"  y="22"  font-family="Space Mono" font-size="6" fill="rgba(38,208,206,0.35)">TIMELINE A</text>
+        <text x="98"  y="22"  font-family="Space Mono" font-size="6" fill="rgba(38,208,206,0.35)">TIMELINE B</text>
+        <text x="198" y="22"  font-family="Space Mono" font-size="6" fill="rgba(38,208,206,0.35)">TIMELINE C</text>
+        <text x="282" y="22"  font-family="Space Mono" font-size="6" fill="rgba(38,208,206,0.35)">TIMELINE D</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 06 HIDDEN UNIVERSE ══ -->
+<section class="S flip" id="s6">
+  <div class="glow-r" style="background:#5c7cff"></div>
+  <div class="cs rr">
+    <p class="s-tag" style="color:#5c7cff">06 &nbsp;—&nbsp; Hidden Universe</p>
+    <div class="s-bar" style="background:#5c7cff"></div>
+    <h2 class="s-title">The 95% We<br>Cannot See</h2>
+    <p class="s-body">
+      Everything you have ever observed — every star, planet, galaxy, every photon of light — accounts for just 5% of the total energy content of the universe. The remaining 95% is dark matter and dark energy: invisible, directly undetected, yet deduced from their gravitational fingerprints. Dark matter forms the scaffolding on which galaxies form. Dark energy is an intrinsic property of space itself, driving the accelerating expansion of the cosmos.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#5c7cff">68%</div><div class="stat-l">Dark Energy</div></div>
+      <div><div class="stat-v" style="color:#5c7cff">27%</div><div class="stat-l">Dark Matter</div></div>
+      <div><div class="stat-v" style="color:#5c7cff">5%</div><div class="stat-l">Everything We Know</div></div>
+    </div>
+  </div>
+  <div class="vs rl">
+    <div class="v-hidden" id="vhidden"></div>
+  </div>
+</section>
+
+<!-- ══ 07 COSMIC THEORY ══ -->
+<section class="S" id="s7">
+  <div class="glow-l" style="background:#ffb74d"></div>
+  <div class="cs rl">
+    <p class="s-tag" style="color:#ffb74d">07 &nbsp;—&nbsp; Cosmic Theory</p>
+    <div class="s-bar" style="background:#ffb74d"></div>
+    <h2 class="s-title">The Origin and Fate<br>of Everything</h2>
+    <p class="s-body">
+      The Big Bang was not an explosion inside space — it was an expansion of space itself, beginning 13.8 billion years ago from a state of near-infinite density and temperature. Inflationary theory proposes an epoch of exponential expansion in the first 10⁻³² seconds, smoothing the early universe and seeding the large-scale structure we observe. The universe will likely end in Heat Death: maximum entropy, infinite cold, total equilibrium. No gradients remain. No stars form. No processes occur.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#ffb74d">13.8B</div><div class="stat-l">Years Old</div></div>
+      <div><div class="stat-v" style="color:#ffb74d">93B</div><div class="stat-l">Light-Years Across</div></div>
+      <div><div class="stat-v" style="color:#ffb74d">10¹²</div><div class="stat-l">Galaxies Observable</div></div>
+    </div>
+  </div>
+  <div class="vs rr">
+    <div class="v-cosmic">
+      <div class="cr"></div>
+      <div class="cr"></div>
+      <div class="cr"></div>
+      <div class="cr"></div>
+      <div class="cr-core"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 08 CONSCIOUSNESS ══ -->
+<section class="S flip" id="s8">
+  <div class="glow-r" style="background:#b094ff"></div>
+  <div class="cs rr">
+    <p class="s-tag" style="color:#b094ff">08 &nbsp;—&nbsp; Consciousness</p>
+    <div class="s-bar" style="background:#b094ff"></div>
+    <h2 class="s-title">The Hard Problem<br>of Experience</h2>
+    <p class="s-body">
+      The hard problem of consciousness asks: why does physical processing in the brain give rise to subjective, first-person experience? Why is there something it is like to be you? We can map every neuron, trace every synapse, model every chemical cascade — and still not explain the redness of red, the ache of nostalgia, the taste of salt. Integrated Information Theory, Global Workspace Theory, and panpsychism each offer partial scaffolding, but no complete answer exists.
+    </p>
+    <div class="s-stats">
+      <div><div class="stat-v" style="color:#b094ff">86B</div><div class="stat-l">Neurons</div></div>
+      <div><div class="stat-v" style="color:#b094ff">100T</div><div class="stat-l">Synaptic Connections</div></div>
+      <div><div class="stat-v" style="color:#b094ff">?</div><div class="stat-l">Explanation</div></div>
+    </div>
+  </div>
+  <div class="vs rl">
+    <div class="v-mind">
+      <svg width="320" height="320" viewBox="0 0 320 320" id="mindsvg"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<section id="footer">
+  <p class="ft-label">End of Known Space</p>
+  <h2 class="ft-title">THE UNIVERSE<br>AWAITS</h2>
+  <p class="ft-body">The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself. — Carl Sagan</p>
+</section>
+
+<script>
+/* ══════════ STARS CANVAS ══════════ */
+const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+let W,H,sx=0,sy=0;
+const stars=[];
+function rz(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+rz();window.addEventListener('resize',rz);
+for(let i=0;i<280;i++)stars.push({
+  x:Math.random(),y:Math.random(),
+  r:Math.random()*1.2+.2,
+  b:Math.random()*.45+.06,
+  s:Math.random()*.004+.002,
+  p:Math.random()*Math.PI*2,
+});
+const shooters=[];
+function mkShoot(){
+  const a=(15+Math.random()*28)*Math.PI/180;
+  shooters.push({x:Math.random()*W,y:Math.random()*H*.4,
+    vx:Math.cos(a)*(5+Math.random()*5),vy:Math.sin(a)*(5+Math.random()*5),
+    len:65+Math.random()*85,life:1,dc:.012+Math.random()*.01});
+}
+document.addEventListener('mousemove',e=>{sx=e.clientX;sy=e.clientY});
+let t=0;
+(function draw(){
+  t++;
+  ctx.clearRect(0,0,W,H);
+  const px=(sx-W*.5)*.007,py=(sy-H*.5)*.007;
+  stars.forEach(s=>{
+    const a=s.b+Math.sin(t*s.s+s.p)*.2;
+    ctx.beginPath();ctx.arc(s.x*W+px,s.y*H+py,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(200,210,255,${a})`;ctx.fill();
+  });
+  if(t%250===0)mkShoot();
+  for(let i=shooters.length-1;i>=0;i--){
+    const s=shooters[i];
+    const g=ctx.createLinearGradient(s.x,s.y,s.x-s.vx*s.len/9,s.y-s.vy*s.len/9);
+    g.addColorStop(0,`rgba(255,255,255,${s.life*.9})`);
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath();ctx.moveTo(s.x,s.y);
+    ctx.lineTo(s.x-s.vx*s.len/9,s.y-s.vy*s.len/9);
+    ctx.strokeStyle=g;ctx.lineWidth=1.4;ctx.stroke();
+    s.x+=s.vx;s.y+=s.vy;s.life-=s.dc;
+    if(s.life<=0)shooters.splice(i,1);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ══════════ CURSOR ══════════ */
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=-100,my=-100,rx=-100,ry=-100;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function lc(){
+  cdot.style.left=mx+'px';cdot.style.top=my+'px';
+  rx+=(mx-rx)*.13;ry+=(my-ry)*.13;
+  cring.style.left=rx+'px';cring.style.top=ry+'px';
+  requestAnimationFrame(lc);
+})();
+document.querySelectorAll('a,button,.snd').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('h'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('h'));
+});
+
+/* ══════════ SIDE NAV ══════════ */
+const sections=[
+  {id:'s0',label:'Origin'},
+  {id:'s1',label:'Fabric'},
+  {id:'s2',label:'Spacetime'},
+  {id:'s3',label:'Questions'},
+  {id:'s4',label:'Black Holes'},
+  {id:'s5',label:'Futures'},
+  {id:'s6',label:'Hidden'},
+  {id:'s7',label:'Cosmic'},
+  {id:'s8',label:'Consciousness'},
+  {id:'footer',label:'End'},
+];
+const sn=document.getElementById('sidenav');
+sections.forEach((s,i)=>{
+  const div=document.createElement('div');
+  div.className='snd';div.id='snd'+i;
+  div.innerHTML=`<span class="snd-lbl">${s.label}</span><div class="snd-d"></div>`;
+  div.addEventListener('click',()=>document.getElementById(s.id).scrollIntoView({behavior:'smooth'}));
+  sn.appendChild(div);
+});
+
+/* ══════════ INTERSECTION — SECTION REVEAL ══════════ */
+const navLabel=document.getElementById('navlabel');
+const secObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const id=e.target.id;
+    const idx=sections.findIndex(s=>s.id===id);
+    if(idx>=0){
+      document.querySelectorAll('.snd').forEach((el,i)=>el.classList.toggle('on',i===idx));
+      const num=idx<9?`0${idx+1}`:'0'+idx;
+      navLabel.textContent=num+' / '+sections[idx].label.toUpperCase();
+    }
+    /* reveal content */
+    e.target.querySelectorAll('.rl').forEach(el=>el.classList.add('in'));
+    e.target.querySelectorAll('.rr').forEach(el=>el.classList.add('in'));
+    /* trigger visuals */
+    triggerVisual(id);
+    secObs.unobserve(e.target);
+  });
+},{threshold:.3});
+document.querySelectorAll('.S,#footer').forEach(s=>secObs.observe(s));
+
+/* ══════════ VISUAL TRIGGERS ══════════ */
+function triggerVisual(id){
+  if(id==='s3'){
+    setTimeout(()=>document.querySelector('.inf-path').classList.add('go'),400);
+  }
+  if(id==='s5'){
+    setTimeout(()=>{
+      document.querySelectorAll('.fl').forEach(l=>l.classList.add('go'));
+      document.querySelectorAll('.fn').forEach(n=>n.classList.add('go'));
+    },300);
+  }
+}
+
+/* ══════════ HIDDEN UNIVERSE DOTS ══════════ */
+const vh=document.getElementById('vhidden');
+for(let i=0;i<90;i++){
+  const d=document.createElement('div');
+  d.className='hd';
+  const sz=[1,1.5,2,2.5,3,4][Math.floor(Math.random()*6)];
+  const op=(.08+Math.random()*.45).toFixed(2);
+  const delay=(Math.random()*4).toFixed(2);
+  Object.assign(d.style,{
+    width:sz+'px',height:sz+'px',
+    left:Math.random()*310+'px',
+    top: Math.random()*310+'px',
+    opacity:op,
+    animation:`pulse ${2+Math.random()*3}s ${delay}s ease-in-out infinite`,
+  });
+  vh.appendChild(d);
+}
+
+/* ══════════ CONSCIOUSNESS NETWORK ══════════ */
+const mindSvg=document.getElementById('mindsvg');
+const nodes=[];
+for(let i=0;i<22;i++){
+  const a=Math.random()*Math.PI*2;
+  const r=20+Math.random()*130;
+  nodes.push({x:160+Math.cos(a)*r,y:160+Math.sin(a)*r});
+}
+/* lines */
+nodes.forEach((n,i)=>{
+  const close=nodes.map((m,j)=>({j,d:Math.hypot(m.x-n.x,m.y-n.y)}))
+    .filter(m=>m.j!==i&&m.d<100).slice(0,3);
+  close.forEach(m=>{
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('class','ml');
+    l.setAttribute('x1',n.x);l.setAttribute('y1',n.y);
+    l.setAttribute('x2',nodes[m.j].x);l.setAttribute('y2',nodes[m.j].y);
+    mindSvg.appendChild(l);
+  });
+});
+/* nodes */
+nodes.forEach((n,i)=>{
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('class','mn');
+  c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',3);
+  c.style.animationDelay=(i*.15)%3+'s';
+  mindSvg.appendChild(c);
+});
+/* pulse ring on center */
+const pr=document.createElementNS('http://www.w3.org/2000/svg','circle');
+pr.setAttribute('class','mind-pulse');
+pr.setAttribute('cx','160');pr.setAttribute('cy','160');pr.setAttribute('r','5');
+pr.setAttribute('stroke','rgba(176,148,255,.35)');pr.setAttribute('fill','none');
+mindSvg.appendChild(pr);
+</script>
+</body>
+</html>
