@@ -3,133 +3,182 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>The Cosmic Mind</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#05050b;
-  --bdr:rgba(255,255,255,0.1);
-  --text:#f4f2ee;
-  --sub:rgba(240,234,220,0.62);
-  --amber:#e8a030;
-  --spring:cubic-bezier(.34,1.56,.64,1);
-  --ease:cubic-bezier(.4,0,.2,1);
+  --bg:#f0f1f9;
+  --white:#ffffff;
+  --text:#08081a;
+  --muted:rgba(18,18,70,0.48);
+  --light:rgba(18,18,70,0.26);
+  --accent:#1a1a6e;
+  --accent2:#4854c0;
+  --border:rgba(18,18,80,0.09);
   --serif:'Cormorant Garamond',Georgia,serif;
   --sans:'Lato',system-ui,sans-serif;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-snap-type:y mandatory;scroll-behavior:smooth;height:100%}
 body{height:100%;overflow-y:scroll;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;cursor:none}
 
 /* ── CURSOR ── */
-#cdot{width:5px;height:5px;background:#fff;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
-#cring{width:24px;height:24px;border:1.5px solid rgba(232,160,48,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s var(--spring),height .2s var(--spring),border-color .2s}
-body.h #cring{width:42px;height:42px;border-color:var(--amber)}
+#cdot{width:5px;height:5px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cring{width:24px;height:24px;border:1.5px solid rgba(26,26,110,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s var(--spring),height .2s var(--spring),border-color .2s}
+body.h #cring{width:40px;height:40px;border-color:var(--accent)}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,5,11,.7);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border-bottom:1px solid rgba(255,255,255,.05)}
-.nav-logo{font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.04em;color:var(--text)}
-.nav-r{display:flex;align-items:center;gap:6px}
-.nav-link{padding:6px 13px;border-radius:100px;font-size:12px;font-weight:400;color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s,background .2s;cursor:none}
-.nav-link:hover{color:var(--text);background:rgba(255,255,255,.06)}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;height:58px;padding:0 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(240,241,249,.88);
+  backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:.06em;color:var(--text)}
+.nav-r{display:flex;align-items:center;gap:4px}
+.nav-link{padding:6px 14px;border-radius:100px;font-family:var(--sans);font-size:12px;font-weight:400;letter-spacing:.05em;color:var(--muted);text-decoration:none;transition:color .2s,background .2s;cursor:none}
+.nav-link:hover{color:var(--text);background:rgba(18,18,80,.06)}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 24px;border-radius:100px;font-family:var(--sans);font-size:13px;font-weight:400;letter-spacing:.04em;text-decoration:none;cursor:none;position:relative;overflow:hidden;user-select:none;transition:transform .15s var(--spring),box-shadow .2s,background .2s,border-color .2s}
-.btn-ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--text)}
-.btn-ghost:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.17);transform:translateY(-1px)}
-.btn-ghost:active{transform:scale(.96)!important;background:rgba(255,255,255,.05)}
-.btn-amber{background:var(--amber);border:1px solid transparent;color:#000;font-weight:600}
-.btn-amber:hover{background:#f0b040;transform:translateY(-1px);box-shadow:0 6px 28px rgba(232,160,48,.38)}
-.btn-amber:active{transform:scale(.96)!important;background:#d09020;box-shadow:none!important}
-.btn-sm{padding:7px 16px;font-size:12px}
-.rip{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);background:rgba(255,255,255,.2);animation:ripA .55s ease-out forwards}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 26px;border-radius:100px;
+  font-family:var(--sans);font-size:13px;font-weight:400;letter-spacing:.06em;
+  text-decoration:none;cursor:none;
+  position:relative;overflow:hidden;user-select:none;
+  transition:transform .15s var(--spring),box-shadow .22s,background .2s,color .2s,border-color .2s;
+}
+.btn-dark{background:var(--accent);border:1px solid var(--accent);color:#fff}
+.btn-dark:hover{background:#2a2a90;transform:translateY(-1px);box-shadow:0 8px 32px rgba(26,26,110,.28)}
+.btn-dark:active{transform:scale(.96)!important;box-shadow:none!important}
+.btn-outline{background:transparent;border:1px solid rgba(26,26,110,.3);color:var(--accent)}
+.btn-outline:hover{background:rgba(26,26,110,.06);border-color:var(--accent);transform:translateY(-1px)}
+.btn-outline:active{transform:scale(.96)!important}
+.btn-sm{padding:8px 18px;font-size:12px}
+.rip{position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);background:rgba(255,255,255,.25);animation:ripA .55s ease-out forwards}
 @keyframes ripA{to{transform:scale(4);opacity:0}}
 
 /* ── SIDE NAV ── */
-#snav{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:300;display:flex;flex-direction:column;gap:11px;align-items:flex-end}
-.snd{display:flex;align-items:center;gap:8px;cursor:none}
-.snd-l{font-family:var(--sans);font-size:9px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);opacity:0;transform:translateX(7px);transition:opacity .2s,transform .2s;white-space:nowrap}
+#snav{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:300;display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.snd{display:flex;align-items:center;gap:9px;cursor:none}
+.snd-l{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--light);opacity:0;transform:translateX(6px);transition:opacity .2s,transform .2s;white-space:nowrap}
 .snd:hover .snd-l,.snd.on .snd-l{opacity:1;transform:translateX(0)}
-.snd-d{width:3px;height:3px;border-radius:50%;background:#181828;transition:background .3s,transform .3s}
-.snd.on .snd-d{background:var(--amber);transform:scale(1.9)}
+.snd-d{width:4px;height:4px;border-radius:50%;background:var(--border);border:1px solid rgba(18,18,80,.2);transition:background .3s,transform .3s,border-color .3s}
+.snd.on .snd-d{background:var(--accent);border-color:var(--accent);transform:scale(1.7)}
 
 /* ── SECTION BASE ── */
 .S{height:100vh;width:100vw;scroll-snap-align:start;display:flex;position:relative;overflow:hidden;z-index:1}
-.cs{width:50%;padding:0 72px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:3}
-.vs{width:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;overflow:hidden}
+/* content half — pure white panel */
+.cs{
+  width:52%;padding:0 72px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:3;
+  background:var(--white);
+}
+/* subtle accent line on inner edge */
+.S:not(.fl) .cs::after{content:'';position:absolute;right:0;top:10%;height:80%;width:1px;background:linear-gradient(to bottom,transparent,var(--border),transparent)}
+.S.fl .cs::after{content:'';position:absolute;left:0;top:10%;height:80%;width:1px;background:linear-gradient(to bottom,transparent,var(--border),transparent)}
+/* photo half */
+.vs{width:48%;position:relative;z-index:2;overflow:hidden}
 .S.fl .cs{order:2}.S.fl .vs{order:1}
 
-/* photo bg per section */
-.s-photo{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;transition:transform .6s var(--ease)}
-/* normal: dark left half, photo right */
-.S:not(.fl) .s-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(4,4,10,.96) 0%,rgba(4,4,10,.88) 42%,rgba(4,4,10,.45) 68%,rgba(4,4,10,.15) 100%)}
-/* flip: dark right half, photo left */
-.S.fl .s-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to left,rgba(4,4,10,.96) 0%,rgba(4,4,10,.88) 42%,rgba(4,4,10,.45) 68%,rgba(4,4,10,.15) 100%)}
+/* photo fills vs */
+.vs-photo{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s var(--ease)}
+.S:hover .vs-photo{transform:scale(1.03)}
 
-/* content */
+/* section content */
 .s-eyebrow{
-  font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--amber);margin-bottom:16px;
+  font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--accent2);margin-bottom:16px;
   display:flex;align-items:center;gap:10px;
 }
-.s-eyebrow::before{content:'';width:20px;height:1px;background:var(--amber);opacity:.6}
+.s-eyebrow::before{content:'';width:18px;height:1px;background:var(--accent2);opacity:.7}
 .s-title{
-  font-family:var(--serif);font-size:clamp(34px,3.8vw,62px);
+  font-family:var(--serif);font-size:clamp(34px,3.6vw,58px);
   font-weight:600;line-height:1.06;letter-spacing:-.01em;
-  color:#fff;margin-bottom:22px;
+  color:var(--text);margin-bottom:20px;
 }
 .s-body{
-  font-family:var(--sans);font-size:15px;line-height:1.85;
-  color:rgba(240,234,220,.72);font-weight:300;
-  max-width:430px;margin-bottom:30px;
+  font-family:var(--sans);font-size:14.5px;line-height:1.86;
+  color:var(--muted);font-weight:300;
+  max-width:420px;margin-bottom:28px;
 }
-.s-stats{display:flex;gap:28px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
-.stat-v{
-  font-family:var(--serif);font-size:28px;font-weight:600;
-  letter-spacing:-.01em;color:#fff;margin-bottom:5px;
+.s-stats{
+  display:flex;gap:24px;
+  padding-top:20px;border-top:1px solid var(--border);
 }
-.stat-l{
-  font-family:var(--sans);font-size:9px;font-weight:700;
-  letter-spacing:.14em;text-transform:uppercase;color:rgba(240,220,180,.45);
-}
+.stat-v{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:-.01em}
+.stat-l{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--light)}
 
 /* reveal */
-.rl{opacity:0;transform:translateX(-22px);transition:opacity .72s var(--ease),transform .72s var(--ease)}
-.rr{opacity:0;transform:translateX(22px);transition:opacity .72s var(--ease),transform .72s var(--ease)}
+.rl{opacity:0;transform:translateX(-20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rr{opacity:0;transform:translateX(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .rl.in,.rr.in{opacity:1;transform:translateX(0)}
 .s-eyebrow{transition-delay:.04s}.s-title{transition-delay:.12s}.s-body{transition-delay:.2s}.s-stats{transition-delay:.28s}
+.vs.rl,.vs.rr{transition-delay:.06s}
 
 /* ═══ HERO ═══ */
-#s0{flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.hero-bg{position:absolute;inset:0;z-index:0;background-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1600&auto=format&fit=crop&q=80');background-size:cover;background-position:center}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,11,.45) 0%,rgba(5,5,11,.65) 60%,rgba(5,5,11,.95) 100%)}
-.h-eye{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);margin-bottom:22px;opacity:0;animation:fu .8s .3s forwards;position:relative;z-index:2}
-.h-title{font-family:var(--serif);font-size:clamp(72px,13vw,162px);font-weight:600;line-height:.85;letter-spacing:-.01em;background:linear-gradient(162deg,#fff 0%,#f5e8d0 35%,var(--amber) 65%,#b05010 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fu .8s .5s forwards;margin-bottom:28px;position:relative;z-index:2}
-.h-sub{font-family:var(--sans);font-size:16px;font-weight:300;color:rgba(240,230,210,.68);max-width:480px;line-height:1.8;opacity:0;animation:fu .8s .75s forwards;margin-bottom:44px;position:relative;z-index:2}
+#s0{flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--white)}
+/* constellation canvas behind hero */
+#hero-canvas{position:absolute;inset:0;z-index:0;pointer-events:none}
+/* subtle cool radial bg */
+#s0::before{
+  content:'';position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 30% 40%,rgba(72,84,192,.07) 0%,transparent 55%),
+    radial-gradient(ellipse at 70% 65%,rgba(26,26,110,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 20%,rgba(100,110,220,.04) 0%,transparent 45%);
+}
+
+.h-eye{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--accent2);margin-bottom:20px;opacity:0;animation:fu .8s .3s forwards;position:relative;z-index:2}
+.h-title{
+  font-family:var(--serif);font-size:clamp(72px,13vw,160px);
+  font-weight:600;line-height:.88;letter-spacing:-.01em;
+  color:var(--text);
+  opacity:0;animation:fu .8s .5s forwards;margin-bottom:26px;position:relative;z-index:2;
+}
+/* accent word */
+.h-title em{font-style:italic;font-weight:300;color:var(--accent2)}
+.h-sub{font-family:var(--sans);font-size:16px;font-weight:300;color:var(--muted);max-width:500px;line-height:1.82;opacity:0;animation:fu .8s .75s forwards;margin-bottom:44px;position:relative;z-index:2}
 .h-btns{display:flex;gap:12px;opacity:0;animation:fu .8s 1s forwards;position:relative;z-index:2}
-.scroll-cue{position:absolute;bottom:34px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fu .8s 1.4s forwards;z-index:2}
-.scroll-cue span{font-size:9px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:rgba(150,140,120,.6)}
-.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--amber),transparent);animation:sb 2s ease-in-out infinite}
-@keyframes sb{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.15;transform:scaleY(.5)}}
+.scroll-cue{position:absolute;bottom:36px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fu .8s 1.4s forwards;z-index:2}
+.scroll-cue span{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--light)}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--accent),transparent);animation:sb 2s ease-in-out infinite}
+@keyframes sb{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.2;transform:scaleY(.5)}}
 @keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 /* ═══ FOOTER ═══ */
-#footer{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;z-index:1;overflow:hidden}
-.footer-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1600&auto=format&fit=crop&q=80');background-size:cover;background-position:center}
-.footer-bg::after{content:'';position:absolute;inset:0;background:rgba(5,5,11,.78)}
-.ft-tag{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:18px;position:relative;z-index:2}
-.ft-title{font-family:var(--serif);font-size:clamp(40px,6vw,84px);font-weight:600;letter-spacing:-.01em;line-height:.9;background:linear-gradient(162deg,#fff 0%,#f5e8d0 35%,var(--amber) 65%,#b05010 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:22px;position:relative;z-index:2}
-.ft-body{font-family:var(--sans);font-size:16px;font-weight:300;color:rgba(240,230,210,.68);max-width:380px;line-height:1.8;margin-bottom:40px;position:relative;z-index:2}
-.ft-btns{display:flex;gap:12px;position:relative;z-index:2}
-.ft-credit{font-size:11px;color:#22223a;position:absolute;bottom:26px;z-index:2}
+#footer{
+  height:100vh;scroll-snap-align:start;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;z-index:1;overflow:hidden;
+  background:var(--white);
+}
+#footer::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 50% 60%,rgba(72,84,192,.08) 0%,transparent 55%),
+    radial-gradient(ellipse at 20% 30%,rgba(26,26,110,.05) 0%,transparent 40%);
+}
+.ft-line{width:40px;height:1px;background:var(--accent2);margin:0 auto 20px;opacity:.5}
+.ft-tag{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent2);margin-bottom:20px;position:relative;z-index:2}
+.ft-title{font-family:var(--serif);font-size:clamp(40px,6vw,80px);font-weight:600;letter-spacing:-.01em;line-height:.92;color:var(--text);margin-bottom:22px;position:relative;z-index:2}
+.ft-title em{font-style:italic;font-weight:300;color:var(--accent2)}
+.ft-body{font-family:var(--sans);font-size:15px;font-weight:300;color:var(--muted);max-width:400px;line-height:1.82;margin-bottom:40px;position:relative;z-index:2}
+.ft-btns{display:flex;gap:12px;position:relative;z-index:2;margin-bottom:60px}
+.ft-credit{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--light);position:absolute;bottom:28px;z-index:2}
 
 @media(max-width:768px){
   .S{flex-direction:column}
-  .cs,.vs{width:100%;height:50vh}
-  .cs{padding:64px 28px 20px}
+  .cs,.vs{width:100%}
+  .cs{height:55vh;padding:64px 28px 24px}
+  .vs{height:45vh}
+  .S:not(.fl) .cs::after,.S.fl .cs::after{display:none}
   .S.fl .cs{order:1}.S.fl .vs{order:2}
   #snav{display:none}
   nav{padding:0 20px}
-  .S:not(.fl) .s-photo::after,.S.fl .s-photo::after{background:rgba(5,5,11,.82)}
 }
 </style>
 </head>
@@ -145,26 +194,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
   <div class="nav-r">
     <a href="#s0" class="nav-link">Home</a>
     <a href="#s1" class="nav-link">Explore</a>
-    <a href="#footer" class="btn btn-amber btn-sm">Launch ↗</a>
+    <a href="#footer" class="btn btn-dark btn-sm">Launch ↗</a>
   </div>
 </nav>
 
 <!-- ══ HERO ══ -->
 <section class="S" id="s0">
-  <div class="hero-bg"></div>
+  <canvas id="hero-canvas"></canvas>
   <p class="h-eye">Mission &nbsp;·&nbsp; Deep Space Inquiry</p>
-  <h1 class="h-title">THE<br>COSMIC<br>MIND</h1>
+  <h1 class="h-title">THE<br><em>COSMIC</em><br>MIND</h1>
   <p class="h-sub">Eight expeditions into the deepest questions of existence — from the curvature of spacetime to the nature of consciousness itself.</p>
   <div class="h-btns">
-    <a href="#s1" class="btn btn-amber">Begin Mission</a>
-    <a href="#s8" class="btn btn-ghost">Consciousness ↓</a>
+    <a href="#s1" class="btn btn-dark">Begin Mission</a>
+    <a href="#s8" class="btn btn-outline">Consciousness ↓</a>
   </div>
   <div class="scroll-cue"><span>Scroll</span><div class="scroll-line"></div></div>
 </section>
 
 <!-- ══ 01 · FABRIC OF REALITY ══ -->
 <section class="S" id="s1">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rl">
     <p class="s-eyebrow">01 · Fabric of Reality</p>
     <h2 class="s-title">What Is Reality<br>Made Of?</h2>
@@ -175,12 +223,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
       <div><div class="stat-v">∞</div><div class="stat-l">Depth of Abstraction</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rr">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 02 · SPACETIME ══ -->
 <section class="S fl" id="s2">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rr">
     <p class="s-eyebrow">02 · Space Time Gravity</p>
     <h2 class="s-title">Gravity Is Not<br>A Force</h2>
@@ -191,12 +240,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
       <div><div class="stat-v">4D</div><div class="stat-l">Spacetime Dimensions</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rl">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 03 · MIND BREAKING ══ -->
 <section class="S" id="s3">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1465101162946-4377e57745c3?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rl">
     <p class="s-eyebrow">03 · Mind Breaking Questions</p>
     <h2 class="s-title">Questions That<br>Dissolve Certainty</h2>
@@ -207,12 +257,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
       <div><div class="stat-v">0</div><div class="stat-l">Confirmed Answers</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rr">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1465101162946-4377e57745c3?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 04 · BLACK HOLES ══ -->
 <section class="S fl" id="s4">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rr">
     <p class="s-eyebrow">04 · Black Holes &amp; Singularities</p>
     <h2 class="s-title">Where Physics<br>Breaks Down</h2>
@@ -223,28 +274,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
       <div><div class="stat-v">~0 K</div><div class="stat-l">Hawking Temperature</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rl">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 05 · IMPOSSIBLE FUTURES ══ -->
 <section class="S" id="s5">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rl">
     <p class="s-eyebrow">05 · Impossible Futures</p>
     <h2 class="s-title">The Unimaginable<br>Shape of What's Next</h2>
-    <p class="s-body">General relativity permits closed timelike curves — paths looping backward through time. The many-worlds interpretation branches reality at every quantum event. Eternal inflation spawns bubble universes with different physical constants. The far future may hold Dyson spheres, uploaded minds, civilisations spanning galaxy clusters — or silence, for reasons we haven't yet imagined.</p>
+    <p class="s-body">General relativity permits closed timelike curves — paths looping backward through time. The many-worlds interpretation branches reality at every quantum event. Eternal inflation spawns bubble universes with different physical constants. The far future may hold Dyson spheres, uploaded minds, civilisations spanning galaxy clusters.</p>
     <div class="s-stats">
       <div><div class="stat-v">10¹⁰⁰</div><div class="stat-l">Years to Heat Death</div></div>
       <div><div class="stat-v">∞?</div><div class="stat-l">Parallel Universes</div></div>
       <div><div class="stat-v">Type III</div><div class="stat-l">Kardashev Goal</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rr">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 06 · HIDDEN UNIVERSE ══ -->
 <section class="S fl" id="s6">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1534996858221-380b92700493?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rr">
     <p class="s-eyebrow">06 · Hidden Universe</p>
     <h2 class="s-title">The 95% We<br>Cannot See</h2>
@@ -255,50 +308,54 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
       <div><div class="stat-v">5%</div><div class="stat-l">All We Know</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rl">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1534996858221-380b92700493?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 07 · COSMIC THEORY ══ -->
 <section class="S" id="s7">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rl">
     <p class="s-eyebrow">07 · Cosmic Theory</p>
     <h2 class="s-title">The Origin and Fate<br>of Everything</h2>
-    <p class="s-body">The Big Bang was not an explosion inside space — it was an expansion of space itself, 13.8 billion years ago. Inflation proposes an epoch of exponential expansion in the first 10⁻³² seconds, smoothing the early universe and seeding the large-scale structure we observe. The universe will likely end in Heat Death: maximum entropy, infinite cold, total equilibrium. No stars. No life.</p>
+    <p class="s-body">The Big Bang was not an explosion inside space — it was an expansion of space itself, 13.8 billion years ago. Inflation proposes an epoch of exponential expansion in the first 10⁻³² seconds, smoothing the early universe. The cosmos will end in Heat Death: maximum entropy, infinite cold, total equilibrium. No gradients. No stars. No life.</p>
     <div class="s-stats">
       <div><div class="stat-v">13.8B</div><div class="stat-l">Years Old</div></div>
       <div><div class="stat-v">93B ly</div><div class="stat-l">Observable Diameter</div></div>
       <div><div class="stat-v">10¹²</div><div class="stat-l">Galaxies Observable</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rr">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ 08 · CONSCIOUSNESS ══ -->
 <section class="S fl" id="s8">
-  <div class="s-photo" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1400&auto=format&fit=crop&q=80')"></div>
   <div class="cs rr">
     <p class="s-eyebrow">08 · Consciousness</p>
     <h2 class="s-title">The Hard Problem<br>of Experience</h2>
-    <p class="s-body">Why does physical processing in the brain give rise to subjective experience? Why is there something it is like to be you? We can map every neuron, trace every synapse — and still not explain the redness of red, the ache of nostalgia, the taste of salt. Integrated Information Theory, Global Workspace Theory, and panpsychism each offer scaffolding, but no complete answer exists.</p>
+    <p class="s-body">Why does physical processing in the brain give rise to subjective experience? Why is there something it is like to be you? We can map every neuron, trace every synapse — and still not explain the redness of red, the ache of nostalgia, the taste of salt. No complete answer exists. This remains the deepest open question at the edge of science and philosophy.</p>
     <div class="s-stats">
       <div><div class="stat-v">86B</div><div class="stat-l">Neurons</div></div>
       <div><div class="stat-v">100T</div><div class="stat-l">Synaptic Connections</div></div>
       <div><div class="stat-v">?</div><div class="stat-l">The Explanation</div></div>
     </div>
   </div>
-  <div class="vs"></div>
+  <div class="vs rl">
+    <div class="vs-photo" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=85')"></div>
+  </div>
 </section>
 
 <!-- ══ FOOTER ══ -->
 <section id="footer">
-  <div class="footer-bg"></div>
-  <p class="ft-tag">End of Known Space</p>
-  <h2 class="ft-title">THE UNIVERSE<br>AWAITS</h2>
+  <div class="ft-tag">End of Known Space</div>
+  <div class="ft-line"></div>
+  <h2 class="ft-title">THE UNIVERSE<br><em>AWAITS</em></h2>
   <p class="ft-body">The cosmos is within us. We are made of star stuff. We are a way for the universe to know itself.</p>
   <div class="ft-btns">
-    <a href="#s0" class="btn btn-amber">Back to Origin</a>
-    <a href="#s1" class="btn btn-ghost">Explore Again</a>
+    <a href="#s0" class="btn btn-dark">Back to Origin</a>
+    <a href="#s1" class="btn btn-outline">Explore Again</a>
   </div>
   <p class="ft-credit">— Carl Sagan</p>
 </section>
@@ -308,27 +365,66 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;padding:0 40px;d
 const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
 let mx=-100,my=-100,rx=-100,ry=-100;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
-(function lc(){
-  cdot.style.left=mx+'px';cdot.style.top=my+'px';
-  rx+=(mx-rx)*.13;ry+=(my-ry)*.13;
-  cring.style.left=rx+'px';cring.style.top=ry+'px';
-  requestAnimationFrame(lc);
-})();
-document.querySelectorAll('a,.snd').forEach(el=>{
-  el.addEventListener('mouseenter',()=>document.body.classList.add('h'));
-  el.addEventListener('mouseleave',()=>document.body.classList.remove('h'));
-});
+(function lc(){cdot.style.left=mx+'px';cdot.style.top=my+'px';rx+=(mx-rx)*.13;ry+=(my-ry)*.13;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(lc)})();
+document.querySelectorAll('a,.snd').forEach(el=>{el.addEventListener('mouseenter',()=>document.body.classList.add('h'));el.addEventListener('mouseleave',()=>document.body.classList.remove('h'))});
 
 /* ── RIPPLE ── */
 document.querySelectorAll('.btn').forEach(btn=>{
   btn.addEventListener('click',e=>{
     const r=btn.getBoundingClientRect(),d=Math.max(btn.clientWidth,btn.clientHeight);
-    const el=document.createElement('div');
-    el.className='rip';
+    const el=document.createElement('div');el.className='rip';
     el.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
     btn.appendChild(el);setTimeout(()=>el.remove(),600);
   });
 });
+
+/* ── HERO CONSTELLATION CANVAS ── */
+const hc=document.getElementById('hero-canvas');
+const hctx=hc.getContext('2d');
+let W,H;
+const pts=[];
+function rsz(){W=hc.width=innerWidth;H=hc.height=innerHeight;makePts()}
+function makePts(){
+  pts.length=0;
+  for(let i=0;i<80;i++)pts.push({
+    x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,
+    r:Math.random()*1.5+.5,
+    a:Math.random()*.35+.06,
+  });
+}
+rsz();window.addEventListener('resize',rsz);
+
+let mhx=W/2,mhy=H/2;
+document.addEventListener('mousemove',e=>{mhx=e.clientX;mhy=e.clientY});
+
+(function drawHero(){
+  hctx.clearRect(0,0,W,H);
+  /* draw lines between nearby points */
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const d=Math.hypot(pts[j].x-pts[i].x,pts[j].y-pts[i].y);
+      if(d<130){
+        hctx.beginPath();
+        hctx.moveTo(pts[i].x,pts[i].y);hctx.lineTo(pts[j].x,pts[j].y);
+        hctx.strokeStyle=`rgba(60,60,160,${.06*(1-d/130)})`;
+        hctx.lineWidth=.6;hctx.stroke();
+      }
+    }
+    /* draw dots */
+    hctx.beginPath();hctx.arc(pts[i].x,pts[i].y,pts[i].r,0,Math.PI*2);
+    hctx.fillStyle=`rgba(50,50,150,${pts[i].a})`;hctx.fill();
+    /* move */
+    pts[i].x+=pts[i].vx;pts[i].y+=pts[i].vy;
+    /* mouse repel */
+    const dx=pts[i].x-mhx,dy=pts[i].y-mhy,dist=Math.hypot(dx,dy);
+    if(dist<120){const f=.15*(1-dist/120);pts[i].x+=dx/dist*f;pts[i].y+=dy/dist*f}
+    /* wrap */
+    if(pts[i].x<-10)pts[i].x=W+10;if(pts[i].x>W+10)pts[i].x=-10;
+    if(pts[i].y<-10)pts[i].y=H+10;if(pts[i].y>H+10)pts[i].y=-10;
+  }
+  requestAnimationFrame(drawHero);
+})();
 
 /* ── SIDE NAV ── */
 const secs=[
@@ -338,13 +434,13 @@ const secs=[
 ];
 const snav=document.getElementById('snav');
 secs.forEach((s,i)=>{
-  const d=document.createElement('div');d.className='snd';d.id='snd'+i;
+  const d=document.createElement('div');d.className='snd';
   d.innerHTML=`<span class="snd-l">${s.l}</span><div class="snd-d"></div>`;
   d.addEventListener('click',()=>document.getElementById(s.id).scrollIntoView({behavior:'smooth'}));
   snav.appendChild(d);
 });
 
-/* ── INTERSECTION OBSERVER ── */
+/* ── INTERSECTION ── */
 const obs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(!e.isIntersecting)return;
@@ -353,18 +449,8 @@ const obs=new IntersectionObserver(entries=>{
     e.target.querySelectorAll('.rl,.rr').forEach(el=>el.classList.add('in'));
     obs.unobserve(e.target);
   });
-},{threshold:.3});
+},{threshold:.25});
 document.querySelectorAll('.S,#footer').forEach(s=>obs.observe(s));
-
-/* ── PARALLAX ON SCROLL ── */
-const scroller=document.documentElement;
-window.addEventListener('scroll',()=>{
-  document.querySelectorAll('.s-photo, .hero-bg, .footer-bg').forEach(el=>{
-    const rect=el.closest('section').getBoundingClientRect();
-    const prog=(rect.top/window.innerHeight);
-    el.style.transform=`translateY(${prog*30}px)`;
-  });
-},{passive:true});
 </script>
 </body>
 </html>
